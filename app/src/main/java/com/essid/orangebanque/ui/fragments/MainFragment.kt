@@ -1,6 +1,7 @@
 package com.essid.orangebanque.ui.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,25 +38,35 @@ class MainFragment : Fragment() {
             layoutManager = LinearLayoutManager(activity)
             adapter = RepoListAdapter(this.context)
         }
+        swipe_refresh.setOnRefreshListener { fetchData(false)}
+        fetchData(true)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                //TODO
+            }
+        }
+    }
+
+    private fun fetchData(shouldDisplayLoader : Boolean)
+    {
         reposViewModel.getRepos().observe(viewLifecycleOwner){
             when (it) {
                 is DataResult.Loading -> {
-                    progress.visibility = View.VISIBLE
+                    if(shouldDisplayLoader)
+                    {
+                        progress.visibility = View.VISIBLE
+                    }
                 }
                 is DataResult.Success -> {
                     progress.visibility = View.GONE
+                    swipe_refresh.isRefreshing=false
                     (recycler_repoList.adapter as RepoListAdapter).submitList(it.repos)
                 }
                 is DataResult.Failure -> {
                     progress.visibility = View.GONE
+                    swipe_refresh.isRefreshing=false
                     Toast.makeText(context,it.exception.message,Toast.LENGTH_LONG)
                 }
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                //TODO
             }
         }
     }
