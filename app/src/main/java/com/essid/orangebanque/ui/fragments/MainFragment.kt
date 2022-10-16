@@ -38,35 +38,27 @@ class MainFragment : Fragment() {
             layoutManager = LinearLayoutManager(activity)
             adapter = RepoListAdapter(this.context)
         }
-        swipe_refresh.setOnRefreshListener { fetchData(false)}
-        fetchData(true)
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                //TODO
-            }
-        }
-    }
-
-    private fun fetchData(shouldDisplayLoader : Boolean)
-    {
         reposViewModel.getRepos().observe(viewLifecycleOwner){
             when (it) {
                 is DataResult.Loading -> {
-                    if(shouldDisplayLoader)
-                    {
                         progress.visibility = View.VISIBLE
-                    }
                 }
                 is DataResult.Success -> {
                     progress.visibility = View.GONE
-                    swipe_refresh.isRefreshing=false
                     (recycler_repoList.adapter as RepoListAdapter).submitList(it.repos)
                 }
                 is DataResult.Failure -> {
                     progress.visibility = View.GONE
-                    swipe_refresh.isRefreshing=false
-                    Toast.makeText(context,it.exception.message,Toast.LENGTH_LONG)
+                    Toast.makeText(context,it.exception.message,Toast.LENGTH_LONG).show()
                 }
+            }
+        }
+
+        swipe_refresh.setOnRefreshListener { reposViewModel.fetchRepos()}
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                reposViewModel.fetchRepos()
             }
         }
     }
