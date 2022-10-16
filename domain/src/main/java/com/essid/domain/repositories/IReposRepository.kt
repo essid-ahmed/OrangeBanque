@@ -8,5 +8,5 @@ interface IReposRepository {
 
     suspend fun getReposListFromDB(): List<Repo>
 
-    suspend fun saveReposInDB(albums: List<Repo>)
+    suspend fun saveReposInDB(repos: List<Repo>)
 }
