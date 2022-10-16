@@ -1,5 +1,6 @@
 package com.essid.orangebanque.ui.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -19,6 +20,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.coroutines.launch
 import com.essid.orangebanque.R
+import com.essid.orangebanque.ui.activities.DetailsActivity
+import com.essid.orangebanque.utils.Constants
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
@@ -34,10 +37,7 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recycler_repoList.apply {
-            layoutManager = LinearLayoutManager(activity)
-            adapter = RepoListAdapter(this.context)
-        }
+        setUpRecyclerViewAdapter()
         reposViewModel.getRepos().observe(viewLifecycleOwner){
             when (it) {
                 is DataResult.Loading -> {
@@ -59,6 +59,19 @@ class MainFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 reposViewModel.fetchRepos()
+            }
+        }
+    }
+
+    private fun setUpRecyclerViewAdapter() {
+        recycler_repoList.apply {
+            layoutManager = LinearLayoutManager(activity)
+            adapter = RepoListAdapter(this.context)
+            (adapter as RepoListAdapter).onItemClick = { repo ->
+                var intent = Intent(context, DetailsActivity::class.java)
+                intent.putExtra(Constants.REPO_FULL_NAME,repo.fullName)
+                intent.putExtra(Constants.REPO_DESCRIPTION,repo.description)
+                startActivity(intent)
             }
         }
     }
