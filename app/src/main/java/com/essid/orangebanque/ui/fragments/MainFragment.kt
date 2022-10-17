@@ -2,7 +2,6 @@ package com.essid.orangebanque.ui.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,6 +38,7 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setUpRecyclerViewAdapter()
         reposViewModel.getRepos().observe(viewLifecycleOwner){
+            swipe_refresh.isRefreshing=false
             when (it) {
                 is DataResult.Loading -> {
                         progress.visibility = View.VISIBLE
@@ -68,7 +68,7 @@ class MainFragment : Fragment() {
             layoutManager = LinearLayoutManager(activity)
             adapter = RepoListAdapter(this.context)
             (adapter as RepoListAdapter).onItemClick = { repo ->
-                var intent = Intent(context, DetailsActivity::class.java)
+                val intent = Intent(context, DetailsActivity::class.java)
                 intent.putExtra(Constants.REPO_FULL_NAME,repo.fullName)
                 intent.putExtra(Constants.REPO_DESCRIPTION,repo.description)
                 startActivity(intent)
