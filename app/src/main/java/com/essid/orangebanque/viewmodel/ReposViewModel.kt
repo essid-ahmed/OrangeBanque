@@ -25,7 +25,7 @@ class ReposViewModel @Inject constructor(private val useCase: GetReposUseCase) :
     fun fetchRepos() {
         repos.value=DataResult.Loading
         viewModelScope.launch {
-            repos.postValue(useCase.invoke())
+            repos.value=useCase.invoke()
         }
     }
 

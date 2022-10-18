@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.essid.data.dataSource.local.dao.RepoDao
 import com.essid.data.dataSource.local.entities.RepoEntity
 
-@Database(entities = [RepoEntity::class], version = 1)
+@Database(entities = [RepoEntity::class], version = 1, exportSchema = false)
 abstract class RepoDB : RoomDatabase() {
     abstract fun RepoDao(): RepoDao
 

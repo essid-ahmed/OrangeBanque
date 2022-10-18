@@ -11,21 +11,19 @@ import javax.inject.Inject
 class GetReposUseCase @Inject constructor(private val repoRepository: IReposRepository) {
 
     suspend fun invoke(): DataResult {
-        try {
+        return try {
             val repoList = repoRepository.getReposListFromServer()
-            when (isNotEmpty(repoList)) {
-                true -> {
-                    insertReposInDB(repoList)
-                }
+            if (isNotEmpty(repoList)) {
+                insertReposInDB(repoList)
             }
-            return DataResult.Success(repoList)
+            DataResult.Success(repoList)
         } catch (ex: Exception) {
             val localRepos = getReposListFromDB()
 
             if (isNotEmpty(localRepos))
-                return DataResult.Success(localRepos)
+                DataResult.Success(localRepos)
             else
-                return DataResult.Failure(ex)
+                DataResult.Failure(ex)
         }
     }
 
@@ -33,11 +31,7 @@ class GetReposUseCase @Inject constructor(private val repoRepository: IReposRepo
      * get all repos from local DB
      */
     private suspend fun getReposListFromDB(): List<Repo> {
-        val repos = mutableListOf<Repo>()
-        GlobalScope.launch(Dispatchers.IO) {
-            repos.addAll(repoRepository.getReposListFromDB())
-        }
-        return repos
+      return repoRepository.getReposListFromDB()
     }
 
     /**

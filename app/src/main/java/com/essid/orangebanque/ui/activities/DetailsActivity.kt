@@ -2,14 +2,18 @@ package com.essid.orangebanque.ui.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.essid.orangebanque.R
+import com.essid.orangebanque.databinding.ActivityDetailsBinding
+import com.essid.orangebanque.databinding.RepoBinding
 import com.essid.orangebanque.utils.Constants
-import kotlinx.android.synthetic.main.activity_details.*
 
 class DetailsActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityDetailsBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_details)
+        binding = ActivityDetailsBinding.inflate(layoutInflater)
+       val view = binding.root
+       setContentView(view)
         setUpUi(
             intent.getStringExtra(Constants.REPO_FULL_NAME),
             intent.getStringExtra(Constants.REPO_DESCRIPTION)
@@ -17,7 +21,7 @@ class DetailsActivity : AppCompatActivity() {
     }
 
     private fun setUpUi(fullName: String?, description: String?) {
-        repo_full_name.text = fullName
-        repo_description.text = description
+      binding.repoFullName.text =fullName
+      binding.repoDescription.text =description
     }
 }

@@ -16,9 +16,8 @@ import com.essid.domain.dataresult.DataResult
 import com.essid.orangebanque.ui.adapters.RepoListAdapter
 import com.essid.orangebanque.viewmodel.ReposViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.coroutines.launch
-import com.essid.orangebanque.R
+import com.essid.orangebanque.databinding.MainFragmentBinding
 import com.essid.orangebanque.ui.activities.DetailsActivity
 import com.essid.orangebanque.utils.Constants
 
@@ -26,35 +25,39 @@ import com.essid.orangebanque.utils.Constants
 class MainFragment : Fragment() {
 
     private val reposViewModel: ReposViewModel by viewModels()
+    private var _binding: MainFragmentBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.main_fragment, container, false)
+        _binding = MainFragmentBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpRecyclerViewAdapter()
         reposViewModel.getRepos().observe(viewLifecycleOwner){
-            swipe_refresh.isRefreshing=false
+            binding.swipeRefresh.isRefreshing=false
             when (it) {
                 is DataResult.Loading -> {
-                        progress.visibility = View.VISIBLE
+                    binding.progress.visibility = View.VISIBLE
                 }
                 is DataResult.Success -> {
-                    progress.visibility = View.GONE
-                    (recycler_repoList.adapter as RepoListAdapter).submitList(it.repos)
+                    binding.progress.visibility = View.GONE
+                    (binding.recyclerRepoList.adapter as RepoListAdapter).submitList(it.repos)
                 }
                 is DataResult.Failure -> {
-                    progress.visibility = View.GONE
+                    binding.progress.visibility = View.GONE
                     Toast.makeText(context,it.exception.message,Toast.LENGTH_LONG).show()
                 }
             }
         }
 
-        swipe_refresh.setOnRefreshListener { reposViewModel.fetchRepos()}
+        binding.swipeRefresh.setOnRefreshListener { reposViewModel.fetchRepos()}
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -64,7 +67,7 @@ class MainFragment : Fragment() {
     }
 
     private fun setUpRecyclerViewAdapter() {
-        recycler_repoList.apply {
+        binding.recyclerRepoList.apply {
             layoutManager = LinearLayoutManager(activity)
             adapter = RepoListAdapter(this.context)
             (adapter as RepoListAdapter).onItemClick = { repo ->
@@ -74,5 +77,10 @@ class MainFragment : Fragment() {
                 startActivity(intent)
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
